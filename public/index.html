@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Agent MVP</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Google Agent MVP</p>
+      <h1>Opportunity inbox and booking desk</h1>
+    </div>
+    <div class="topbar-actions">
+      <span id="connection-status" class="status-pill">Checking connection</span>
+      <a class="button primary" href="/auth/google">Connect Google</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <nav class="sidebar" aria-label="Dashboard sections">
+      <button class="nav-item active" data-tab="leads" type="button">Leads</button>
+      <button class="nav-item" data-tab="crm" type="button">CRM</button>
+      <button class="nav-item" data-tab="inbox" type="button">Inbox</button>
+      <button class="nav-item" data-tab="calendar" type="button">Calendar</button>
+      <button class="nav-item" data-tab="booking" type="button">Booking</button>
+      <button class="nav-item" data-tab="settings" type="button">Settings</button>
+    </nav>
+
+    <section class="content">
+      <div id="alert" class="alert hidden" role="status"></div>
+
+      <section id="tab-leads" class="panel tab-panel active">
+        <div class="panel-header">
+          <div>
+            <h2>Opportunities</h2>
+            <p>Review recent unread inbox messages that look like bookings, jobs, tech opportunities, due work, or upcoming items.</p>
+          </div>
+          <div class="panel-actions">
+            <button id="refresh-leads" class="button" type="button">Refresh Leads</button>
+            <button id="smart-leads" class="button primary" type="button">Use Ollama</button>
+          </div>
+        </div>
+
+        <div class="split-grid">
+          <div class="surface">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Lead</th>
+                  <th>Type / Signal</th>
+                    <th>Timing</th>
+                    <th>Extracted</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="leads-body">
+                  <tr><td colspan="5" class="empty">Refresh to scan for leads.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="surface detail-pane">
+            <h3>Selected Lead</h3>
+            <div id="lead-detail" class="empty-block">Choose a lead to review details and prefill the booking form.</div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="tab-crm" class="panel tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>CRM</h2>
+            <p>Group incoming Gmail messages by organization, contact, opportunity type, and next action.</p>
+          </div>
+          <button id="refresh-crm" class="button primary" type="button">Build CRM</button>
+        </div>
+
+        <div id="crm-summary" class="metric-grid">
+          <div class="metric"><span>Organizations</span><strong>0</strong></div>
+          <div class="metric"><span>With Opportunities</span><strong>0</strong></div>
+          <div class="metric"><span>Due Work</span><strong>0</strong></div>
+          <div class="metric"><span>Upcoming</span><strong>0</strong></div>
+        </div>
+
+        <div class="split-grid">
+          <div class="surface">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Organization</th>
+                    <th>Analysis</th>
+                    <th>Activity</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="crm-body">
+                  <tr><td colspan="4" class="empty">Build CRM to group recent messages.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="surface detail-pane">
+            <h3>Organization Detail</h3>
+            <div id="crm-detail" class="empty-block">Choose an organization to review contacts, messages, and recommended next action.</div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="tab-inbox" class="panel tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Inbox</h2>
+            <p>Fetch restricted Gmail metadata. Full email bodies are not requested.</p>
+          </div>
+        </div>
+
+        <form id="email-search-form" class="toolbar">
+          <label>
+            Search query
+            <input id="email-query" name="q" placeholder="newer_than:7d hiring OR software" autocomplete="off">
+          </label>
+          <label>
+            Limit
+            <input id="email-limit" name="limit" type="number" min="1" max="150" value="150">
+          </label>
+          <button class="button primary" type="submit">Fetch Messages</button>
+        </form>
+
+        <div class="surface">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>From</th>
+                  <th>Subject</th>
+                  <th>Date</th>
+                  <th>Snippet</th>
+                </tr>
+              </thead>
+              <tbody id="messages-body">
+                <tr><td colspan="4" class="empty">Run a search to load messages.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-calendar" class="panel tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Calendar</h2>
+            <p>Inspect upcoming events and check open slots before creating a booking.</p>
+          </div>
+          <button id="refresh-events" class="button" type="button">Refresh Events</button>
+        </div>
+
+        <div class="split-grid">
+          <form id="availability-form" class="surface form-stack">
+            <h3>Check Availability</h3>
+            <label>Date <input name="date" type="date" required></label>
+            <label>Start time <input name="startTime" type="time" required></label>
+            <label>Duration minutes <input name="durationMinutes" type="number" min="1" max="480" value="30" required></label>
+            <button class="button primary" type="submit">Check Slot</button>
+            <div id="availability-result" class="result-box">No slot checked yet.</div>
+          </form>
+
+          <div class="surface">
+            <h3>Upcoming Events</h3>
+            <div id="events-list" class="event-list empty-block">Refresh to load calendar events.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-booking" class="panel tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Booking</h2>
+            <p>Create a calendar event directly or from a reviewed lead.</p>
+          </div>
+          <button id="clear-booking" class="button" type="button">Clear Form</button>
+        </div>
+
+        <form id="booking-form" class="surface form-grid">
+          <input name="emailId" type="hidden">
+          <label>Customer name <input name="customerName" required autocomplete="name"></label>
+          <label>Phone <input name="phone" required autocomplete="tel"></label>
+          <label>Email <input name="email" type="email" autocomplete="email"></label>
+          <label>Service <input name="service" required></label>
+          <label>Date <input name="date" type="date" required></label>
+          <label>Start time <input name="startTime" type="time" required></label>
+          <label>Duration minutes <input name="durationMinutes" type="number" min="1" max="480" value="30" required></label>
+          <label class="full">Notes <textarea name="notes" rows="4"></textarea></label>
+          <div class="form-actions full">
+            <button id="check-booking-slot" class="button" type="button">Check Availability</button>
+            <button class="button primary" type="submit">Create Booking</button>
+          </div>
+          <div id="booking-result" class="result-box full">No booking submitted yet.</div>
+        </form>
+      </section>
+
+      <section id="tab-settings" class="panel tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Settings and API</h2>
+            <p>Connection details, privacy limits, and API examples for local testing.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="surface">
+            <h3>Connection</h3>
+            <dl class="definition-list">
+              <dt>Google status</dt>
+              <dd id="settings-connected">Checking</dd>
+              <dt>OAuth redirect URI</dt>
+              <dd id="settings-redirect">Checking</dd>
+              <dt>LLM</dt>
+              <dd id="settings-llm">Checking</dd>
+            </dl>
+          </div>
+
+          <div class="surface">
+            <h3>Privacy Defaults</h3>
+            <ul class="plain-list">
+              <li>Gmail uses read-only scope.</li>
+              <li>Email fetches request metadata and snippets, not full bodies.</li>
+              <li>Default search is unread inbox mail from the last 14 days.</li>
+              <li>Results are capped by the backend.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="surface api-examples">
+          <h3>API Examples</h3>
+          <pre><code>GET /auth/status
+GET /gmail/latest
+GET /agent/booking-leads
+GET /calendar/events
+POST /calendar/check-availability
+POST /calendar/bookings
+POST /agent/create-booking-from-lead</code></pre>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

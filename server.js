@@ -1,0 +1,45 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import authRoutes from './routes/authRoutes.js';
+import gmailRoutes from './routes/gmailRoutes.js';
+import calendarRoutes from './routes/calendarRoutes.js';
+import agentRoutes from './routes/agentRoutes.js';
+import crmRoutes from './routes/crmRoutes.js';
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const publicDir = path.join(__dirname, 'public');
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static(publicDir, {
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store');
+  },
+}));
+
+app.use('/auth', authRoutes);
+app.use('/gmail', gmailRoutes);
+app.use('/calendar', calendarRoutes);
+app.use('/agent', agentRoutes);
+app.use('/crm', crmRoutes);
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+app.get('/oauth2callback', (req, res) => {
+  res.redirect('/auth/oauth2callback?' + new URLSearchParams(req.query).toString());
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`OAuth Redirect URI: ${process.env.GOOGLE_REDIRECT_URI || `http://localhost:${PORT}/oauth2callback`}`);
+});
