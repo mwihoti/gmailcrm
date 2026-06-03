@@ -17,13 +17,13 @@ router.get('/google', (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Google OAuth Not Configured</title>
+        <title>Google OAuth Not Configured - gmailcrm</title>
         <link rel="stylesheet" href="/styles.css">
       </head>
       <body>
         <header class="topbar">
           <div>
-            <p class="eyebrow">Google Agent MVP</p>
+            <p class="eyebrow">gmailcrm</p>
             <h1>Google OAuth is not configured</h1>
           </div>
           <div class="topbar-actions">
@@ -90,13 +90,13 @@ router.get('/oauth2callback', async (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Authentication Successful</title>
+        <title>Authentication Successful - gmailcrm</title>
         <link rel="stylesheet" href="/styles.css">
       </head>
       <body>
         <header class="topbar">
           <div>
-            <p class="eyebrow">Google Agent MVP</p>
+            <p class="eyebrow">gmailcrm</p>
             <h1>Authentication Successful</h1>
           </div>
           <div class="topbar-actions">
