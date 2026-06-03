@@ -1,6 +1,6 @@
 import express from 'express';
 import { getAuthUrl, getClient, getGoogleOAuthConfigStatus } from '../config/google.js';
-import { loadTokens, saveTokens } from '../services/tokenStore.js';
+import { getTokenStoreInfo, loadTokens, saveTokens } from '../services/tokenStore.js';
 import { getOllamaConfig } from '../services/ollamaService.js';
 
 const router = express.Router();
@@ -53,10 +53,15 @@ router.get('/status', async (req, res) => {
   const tokens = await loadTokens();
   const ollama = getOllamaConfig();
   const googleOAuth = getGoogleOAuthConfigStatus();
+  const tokenStore = getTokenStoreInfo();
   res.json({
     connected: Boolean(tokens?.access_token || tokens?.refresh_token),
     redirectUri: googleOAuth.redirectUri,
     googleOAuth,
+    tokenStore: {
+      durable: tokenStore.durable,
+      location: tokenStore.durable ? 'project file' : 'temporary function storage',
+    },
     llm: {
       provider: 'ollama',
       configured: ollama.configured,
@@ -104,8 +109,8 @@ router.get('/oauth2callback', async (req, res) => {
             <div class="panel active">
               <div class="panel-header">
                 <div>
-                  <h2>Tokens saved locally</h2>
-                  <p>Your OAuth tokens have been saved to <strong>tokens.json</strong>. You can now review Gmail leads and create Calendar bookings from the dashboard.</p>
+                  <h2>Tokens saved</h2>
+                  <p>Your OAuth tokens have been saved for this app instance. You can now review Gmail leads and create Calendar bookings from the dashboard.</p>
                 </div>
               </div>
 
@@ -127,6 +132,10 @@ router.get('/oauth2callback', async (req, res) => {
     `);
   } catch (error) {
     console.error('Error retrieving access token', error);
+    if (error.response?.data?.error === 'invalid_grant') {
+      return res.status(400).send('Authentication failed: this Google authorization code is expired or was already used. Start again from Connect Google.');
+    }
+
     res.status(500).send('Authentication failed');
   }
 });

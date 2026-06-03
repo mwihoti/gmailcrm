@@ -98,7 +98,7 @@ Also add this production redirect URI to the Google OAuth client:
 https://gmailcrm.vercel.app/oauth2callback
 ```
 
-OAuth tokens are currently stored in `tokens.json` for local development. Vercel functions do not provide durable writable project storage, so use a database or managed secret store before relying on production OAuth sessions.
+OAuth tokens are stored in `tokens.json` locally and in `/tmp/tokens.json` on Vercel. Vercel `/tmp` storage is writable but not durable across function instances, so use a database or managed secret store before relying on production OAuth sessions.
 
 ## Dashboard
 
