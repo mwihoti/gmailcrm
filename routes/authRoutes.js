@@ -1,21 +1,62 @@
 import express from 'express';
-import { getAuthUrl, getClient } from '../config/google.js';
+import { getAuthUrl, getClient, getGoogleOAuthConfigStatus } from '../config/google.js';
 import { loadTokens, saveTokens } from '../services/tokenStore.js';
 import { getOllamaConfig } from '../services/ollamaService.js';
 
 const router = express.Router();
 
 router.get('/google', (req, res) => {
-  const url = getAuthUrl();
-  res.redirect(url);
+  try {
+    const url = getAuthUrl();
+    res.redirect(url);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Google OAuth Not Configured</title>
+        <link rel="stylesheet" href="/styles.css">
+      </head>
+      <body>
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Google Agent MVP</p>
+            <h1>Google OAuth is not configured</h1>
+          </div>
+          <div class="topbar-actions">
+            <a class="button primary" href="/">Open Dashboard</a>
+          </div>
+        </header>
+
+        <main class="layout single-column">
+          <section class="content">
+            <div class="panel active">
+              <div class="panel-header">
+                <div>
+                  <h2>Missing production environment variables</h2>
+                  <p>Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in Vercel Production environment variables, then redeploy.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </body>
+      </html>
+    `);
+  }
 });
 
 router.get('/status', async (req, res) => {
   const tokens = await loadTokens();
   const ollama = getOllamaConfig();
+  const googleOAuth = getGoogleOAuthConfigStatus();
   res.json({
     connected: Boolean(tokens?.access_token || tokens?.refresh_token),
-    redirectUri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/oauth2callback',
+    redirectUri: googleOAuth.redirectUri,
+    googleOAuth,
     llm: {
       provider: 'ollama',
       configured: ollama.configured,
