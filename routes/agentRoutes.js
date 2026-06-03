@@ -18,6 +18,17 @@ router.get('/booking-leads', async (req, res) => {
   }
 });
 
+router.get('/linkedin-leads', async (req, res) => {
+  try {
+    const emails = await fetchLatestEmails('linkedin', 150);
+    const leads = classifyLeads(emails).filter((lead) => lead.source === 'linkedin');
+    res.json(leads);
+  } catch (error) {
+    console.error('Error fetching LinkedIn leads:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/smart-opportunities', async (req, res) => {
   try {
     const limit = Math.min(Number.parseInt(req.query.limit || '20', 10), 50);

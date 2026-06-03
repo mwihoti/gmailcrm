@@ -7,7 +7,7 @@ A Node.js + Express app for connecting a Google account with OAuth, reviewing re
 - A static dashboard at `http://localhost:3000`.
 - Google OAuth connection flow.
 - Gmail metadata search with read-only Gmail access.
-- Keyword and heuristic classification for bookings, job opportunities, tech opportunities, due work, and upcoming items.
+- Keyword and heuristic classification for LinkedIn leads, bookings, job opportunities, tech opportunities, due work, and upcoming items.
 - Calendar availability checks.
 - Conflict-safe booking creation.
 - Optional Ollama Cloud enrichment for summaries, priorities, suggested actions, and better extraction.
@@ -104,7 +104,7 @@ OAuth tokens are stored in `tokens.json` locally. On Vercel, the OAuth callback 
 
 The UI lives in `public/` and is served by Express.
 
-- **Leads**: scans restricted Gmail metadata, classifies likely booking requests, job opportunities, tech opportunities, due work, and upcoming items, then shows received date plus detected due/upcoming timing.
+- **Leads**: scans restricted Gmail metadata, classifies likely LinkedIn leads, booking requests, job opportunities, tech opportunities, due work, and upcoming items, then shows received date plus detected due/upcoming timing.
 - **Use Ollama**: enriches detected opportunities with LLM-generated priority, summary, suggested action, confidence, and better structured extraction.
 - **CRM**: groups recent messages by organization/domain and shows contacts, activity, category counts, stage, summary, and suggested next action.
 - **Inbox**: searches Gmail metadata with a backend-enforced safety base query and result cap.
@@ -135,6 +135,7 @@ The UI lives in `public/` and is served by Express.
 ### Agent Workflow
 
 - `GET /agent/booking-leads`: fetch and classify recent email metadata as bookings, job opportunities, tech opportunities, due work, and upcoming items.
+- `GET /agent/linkedin-leads`: search recent Gmail metadata for LinkedIn messages and classify matching LinkedIn leads.
 - `GET /agent/smart-opportunities?limit=20`: classify recent email metadata and enrich detected opportunities with Ollama Cloud.
 - `POST /agent/create-booking-from-lead`: validate lead booking details, check availability, and create the booking.
 

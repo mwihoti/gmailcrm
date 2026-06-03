@@ -60,6 +60,21 @@ test('classifies job opportunity emails', () => {
   assert.ok(lead.score >= 7);
 });
 
+test('classifies LinkedIn messages as LinkedIn leads', () => {
+  const lead = classifyLead({
+    id: 'linkedin_1',
+    from: 'LinkedIn <messages-noreply@linkedin.com>',
+    subject: 'A recruiter sent you a message on LinkedIn',
+    snippet: 'You have a new InMail about a software engineer opportunity. View profile to reply.',
+  });
+
+  assert.equal(lead.category, 'linkedin_lead');
+  assert.equal(lead.source, 'linkedin');
+  assert.equal(lead.extracted.source, 'linkedin');
+  assert.ok(lead.matchedKeywords.includes('linkedin'));
+  assert.ok(lead.matchedKeywords.includes('inmail'));
+});
+
 test('classifies tech opportunity emails', () => {
   const lead = classifyLead({
     id: 'tech_1',

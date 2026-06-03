@@ -1,4 +1,10 @@
 const OPPORTUNITY_SIGNALS = [
+  { keyword: 'linkedin', weight: 5, category: 'linkedin_lead', service: 'LinkedIn lead' },
+  { keyword: 'inmail', weight: 5, category: 'linkedin_lead', service: 'LinkedIn InMail' },
+  { keyword: 'sent you a message', weight: 4, category: 'linkedin_lead', service: 'LinkedIn message' },
+  { keyword: 'wants to connect', weight: 4, category: 'linkedin_lead', service: 'LinkedIn connection' },
+  { keyword: 'connection request', weight: 4, category: 'linkedin_lead', service: 'LinkedIn connection' },
+  { keyword: 'view profile', weight: 2, category: 'linkedin_lead', service: 'LinkedIn profile review' },
   { keyword: 'booking', weight: 3, category: 'booking', service: 'booking' },
   { keyword: 'reservation', weight: 3, category: 'booking', service: 'reservation' },
   { keyword: 'appointment', weight: 3, category: 'booking', service: 'appointment' },
@@ -65,6 +71,7 @@ const RELATIVE_DATE_PATTERN = /\b(today|tomorrow)\b/i;
 const TIME_PATTERN = /\b(?:(?:[01]?\d|2[0-3]):[0-5]\d\s?(?:am|pm)?|(?:[1-9]|1[0-2])\s?(?:am|pm))\b/i;
 const DUE_CONTEXT_PATTERN = /\b(due|due date|deadline|submit by|apply by|expires|expiring|closes|closing|assignment|task)\b/i;
 const UPCOMING_CONTEXT_PATTERN = /\b(upcoming|webinar|meeting|interview|event|workshop|starts|scheduled|reminder|launch|demo)\b/i;
+const LINKEDIN_PATTERN = /\blinkedin\b|linkedin\.com|mail\.linkedin\.com|inmail|connection request|wants to connect|sent you a message/i;
 
 const MONTHS = {
   jan: 0,
@@ -245,11 +252,13 @@ export const extractLeadDetails = (email) => {
     ...timing,
     durationMinutes: 30,
     service: serviceSignal?.service || '',
+    source: LINKEDIN_PATTERN.test(text) ? 'linkedin' : 'gmail',
   };
 };
 
 export const classifyLead = (email) => {
-  const textToSearch = `${email.subject || ''} ${email.snippet || ''}`.toLowerCase();
+  const fullText = `${email.from || ''} ${email.subject || ''} ${email.snippet || ''}`;
+  const textToSearch = fullText.toLowerCase();
   const matchedSignals = OPPORTUNITY_SIGNALS.filter(({ keyword }) => includesSignal(textToSearch, keyword));
 
   if (!matchedSignals.length) return null;
@@ -277,6 +286,7 @@ export const classifyLead = (email) => {
     subject: email.subject,
     snippet: email.snippet,
     date: email.date,
+    source: extracted.source,
     score,
     category,
     status: 'needs_review',

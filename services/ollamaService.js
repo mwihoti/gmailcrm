@@ -2,7 +2,7 @@ const DEFAULT_OLLAMA_BASE_URL = 'https://ollama.com/api';
 const DEFAULT_OLLAMA_MODEL = 'gpt-oss:20b';
 
 const EXPECTED_JSON_SHAPE = {
-  category: 'booking | job_opportunity | tech_opportunity | due_work | upcoming_item | ignore',
+  category: 'linkedin_lead | booking | job_opportunity | tech_opportunity | due_work | upcoming_item | ignore',
   priority: 'high | medium | low',
   summary: 'short useful summary',
   suggestedAction: 'next action for the user',
@@ -40,6 +40,7 @@ const buildMessages = (email) => [
       'Dates must be YYYY-MM-DD when explicit or confidently inferable from the email date.',
       'Times must be HH:MM in 24-hour format when explicit.',
       'Use empty strings for unknown string fields.',
+      'Use category linkedin_lead for LinkedIn messages, InMail, connection requests, recruiter outreach, and profile lead notifications.',
       'Use category ignore for payment notices, sports/shop promos, newsletters, and unrelated notifications.',
     ].join(' '),
   },

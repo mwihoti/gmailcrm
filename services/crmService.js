@@ -12,6 +12,7 @@ const PERSONAL_DOMAINS = new Set([
 ]);
 
 const CATEGORY_LABELS = {
+  linkedin_lead: 'LinkedIn Lead',
   booking: 'Booking',
   job_opportunity: 'Job Opportunity',
   tech_opportunity: 'Tech Opportunity',
@@ -81,6 +82,7 @@ const deriveStage = ({ messageCount, opportunityCount, dueCount, upcomingCount }
 const deriveSuggestedAction = (org) => {
   if (org.dueCount > 0) return 'Review due work or deadline and decide the next step.';
   if (org.upcomingCount > 0) return 'Check upcoming date/time and add it to the calendar if relevant.';
+  if (org.categoryCounts.linkedin_lead) return 'Review the LinkedIn lead and reply if it is relevant.';
   if (org.categoryCounts.job_opportunity) return 'Review the role and reply or save as a job lead.';
   if (org.categoryCounts.booking) return 'Review booking details and create a calendar booking if confirmed.';
   if (org.categoryCounts.tech_opportunity) return 'Review whether this tech opportunity is worth following.';
@@ -138,6 +140,7 @@ export const buildOrganizationsFromMessages = (messages) => {
       date: message.date,
       snippet: message.snippet,
       category: classified?.category || 'general',
+      source: classified?.source || 'gmail',
       score: classified?.score || 0,
       extracted: classified?.extracted || {},
     });

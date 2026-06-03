@@ -127,7 +127,7 @@ const loadAuthStatus = async () => {
 
 const renderLeads = (leads) => {
   if (!leads.length) {
-    setLoadingRow(els.leadsBody, 5, 'No booking, job, tech, due, or upcoming opportunities found in the current restricted inbox scan.');
+    setLoadingRow(els.leadsBody, 5, 'No LinkedIn, booking, job, tech, due, or upcoming opportunities found in the current restricted inbox scan.');
     return;
   }
 
@@ -176,6 +176,7 @@ const renderLeadDetail = (lead) => {
     <div class="detail-row"><span>Received</span><span>${escapeHtml(lead.date || 'No received date')}</span></div>
     <div class="detail-row"><span>Snippet</span><span>${escapeHtml(lead.snippet || 'No snippet')}</span></div>
     <div class="detail-row"><span>Type</span><span>${escapeHtml(formatCategory(lead.category))}</span></div>
+    <div class="detail-row"><span>Source</span><span>${escapeHtml(formatCategory(lead.source || extracted.source || 'gmail'))}</span></div>
     <div class="detail-row"><span>Priority</span><span>${escapeHtml(lead.priority || 'Not set')}</span></div>
     <div class="detail-row"><span>Summary</span><span>${escapeHtml(lead.summary || 'Not generated')}</span></div>
     <div class="detail-row"><span>Action</span><span>${escapeHtml(lead.suggestedAction || 'Not generated')}</span></div>
@@ -287,6 +288,20 @@ const loadLeads = async () => {
   setLoadingRow(els.leadsBody, 5, 'Scanning restricted inbox metadata...');
   try {
     const leads = await api('/agent/booking-leads');
+    state.leads = leads;
+    state.selectedLead = null;
+    renderLeads(leads);
+    renderLeadDetail(null);
+  } catch (error) {
+    setLoadingRow(els.leadsBody, 5, error.message);
+    showAlert(error.message, 'error');
+  }
+};
+
+const loadLinkedInLeads = async () => {
+  setLoadingRow(els.leadsBody, 5, 'Scanning recent Gmail metadata for LinkedIn leads...');
+  try {
+    const leads = await api('/agent/linkedin-leads');
     state.leads = leads;
     state.selectedLead = null;
     renderLeads(leads);
@@ -493,6 +508,7 @@ els.crmBody.addEventListener('click', (event) => {
 });
 
 document.getElementById('refresh-leads').addEventListener('click', loadLeads);
+document.getElementById('linkedin-leads').addEventListener('click', loadLinkedInLeads);
 document.getElementById('smart-leads').addEventListener('click', loadSmartLeads);
 document.getElementById('refresh-crm').addEventListener('click', loadCrm);
 document.getElementById('email-search-form').addEventListener('submit', loadMessages);
