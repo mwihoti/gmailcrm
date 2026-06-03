@@ -60,7 +60,8 @@ router.get('/status', async (req, res) => {
     googleOAuth,
     tokenStore: {
       durable: tokenStore.durable,
-      location: tokenStore.durable ? 'project file' : 'temporary function storage',
+      browserBacked: tokenStore.browserBacked,
+      location: tokenStore.browserBacked ? 'encrypted HTTP-only cookie' : 'temporary function storage',
     },
     llm: {
       provider: 'ollama',
@@ -110,7 +111,7 @@ router.get('/oauth2callback', async (req, res) => {
               <div class="panel-header">
                 <div>
                   <h2>Tokens saved</h2>
-                  <p>Your OAuth tokens have been saved for this app instance. You can now review Gmail leads and create Calendar bookings from the dashboard.</p>
+                  <p>Your OAuth tokens have been saved in an HTTP-only browser cookie for this app. You can now review Gmail leads and create Calendar bookings from the dashboard.</p>
                 </div>
               </div>
 

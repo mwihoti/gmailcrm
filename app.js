@@ -8,6 +8,7 @@ import gmailRoutes from './routes/gmailRoutes.js';
 import calendarRoutes from './routes/calendarRoutes.js';
 import agentRoutes from './routes/agentRoutes.js';
 import crmRoutes from './routes/crmRoutes.js';
+import { tokenRequestContext } from './services/tokenStore.js';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const publicDir = path.join(__dirname, 'public');
 
 app.use(cors());
 app.use(express.json());
+app.use(tokenRequestContext);
 app.use(express.static(publicDir, {
   setHeaders: (res) => {
     res.setHeader('Cache-Control', 'no-store');
