@@ -1,6 +1,6 @@
 # Google Agent MVP Backend
 
-A local Node.js + Express app for connecting a Google account with OAuth, reviewing recent Gmail messages as bookings, job opportunities, tech opportunities, due work, and upcoming items, checking Google Calendar availability, and creating calendar bookings.
+A Node.js + Express app for connecting a Google account with OAuth, reviewing recent Gmail messages as bookings, job opportunities, tech opportunities, due work, and upcoming items, checking Google Calendar availability, and creating calendar bookings.
 
 ## What It Provides
 
@@ -66,6 +66,39 @@ npm run dev
 ```
 
 Open `http://localhost:3000`, click **Connect Google**, and complete the OAuth flow.
+
+## Vercel Deployment
+
+This repository is an Express app, not a Next.js app. Vercel serves it through `api/index.js`, with `vercel.json` rewriting requests to the Express handler.
+
+If production shows the default Next.js starter page, Vercel is deploying a different project, branch, or root directory. In the Vercel project settings, confirm:
+
+- Git repository: `mwihoti/gmailcrm`
+- Production branch: `main`
+- Root directory: repository root, left blank unless this app is moved into a subdirectory
+- Framework preset: Other
+
+Set these Vercel environment variables:
+
+```bash
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=https://gmailcrm.vercel.app/oauth2callback
+GMAIL_MAX_RESULTS=150
+GMAIL_LOOKBACK_DAYS=14
+CALENDAR_TIME_ZONE=Africa/Nairobi
+OLLAMA_API_KEY=
+OLLAMA_BASE_URL=https://ollama.com/api
+OLLAMA_MODEL=gpt-oss:20b
+```
+
+Also add this production redirect URI to the Google OAuth client:
+
+```text
+https://gmailcrm.vercel.app/oauth2callback
+```
+
+OAuth tokens are currently stored in `tokens.json` for local development. Vercel functions do not provide durable writable project storage, so use a database or managed secret store before relying on production OAuth sessions.
 
 ## Dashboard
 
