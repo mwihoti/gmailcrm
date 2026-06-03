@@ -120,6 +120,9 @@ The UI lives in `public/` and is served by Express.
 - `GET /oauth2callback`: Google redirect target. Internally redirects to `/auth/oauth2callback`.
 - `GET /auth/oauth2callback`: handle OAuth callback.
 - `GET /auth/status`: return local token connection status.
+- `GET /privacy`: public privacy policy for OAuth verification.
+- `GET /terms`: public terms of service for OAuth verification.
+- `GET /delete-data`: public data deletion instructions.
 
 ### Gmail
 

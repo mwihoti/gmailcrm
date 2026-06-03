@@ -36,6 +36,18 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(publicDir, 'privacy.html'));
+});
+
+app.get('/terms', (req, res) => {
+  res.sendFile(path.join(publicDir, 'terms.html'));
+});
+
+app.get('/delete-data', (req, res) => {
+  res.sendFile(path.join(publicDir, 'delete-data.html'));
+});
+
 app.get('/oauth2callback', (req, res) => {
   res.redirect('/auth/oauth2callback?' + new URLSearchParams(req.query).toString());
 });
